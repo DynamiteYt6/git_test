@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Gwen 💌</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee2b5b",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221015",
+                        "accent-gold": "#E5C185",
+                        "rose-gold": "#b76e79",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"],
+                        "serif": ["Playfair Display", "serif"],
+                        "handwritten": ["Dancing Script", "cursive"]
+                    },
+                },
+            },
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .screen.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* Floating hearts animation */
+        .floating-heart {
+            position: absolute;
+            animation: float-up 8s infinite ease-in-out;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @keyframes float-up {
+            0% { 
+                transform: translateY(100vh) rotate(0deg) scale(0.5); 
+                opacity: 0; 
+            }
+            15% { opacity: 0.7; }
+            85% { opacity: 0.7; }
+            100% { 
+                transform: translateY(-10vh) rotate(360deg) scale(1.2); 
+                opacity: 0; 
+            }
+        }
+
+        /* Confetti animation */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            animation: confetti-fall 3s ease-in-out forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-20px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Sparkle effect */
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #E5C185;
+            border-radius: 50%;
+            animation: sparkle 1.5s ease-in-out infinite;
+            box-shadow: 0 0 10px #E5C185;
+        }
+
+        @keyframes sparkle {
+            0%, 100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Reveal animations */
+        .reveal-item {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .reveal-item.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Glassmorphism */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        /* Pulse animation */
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(238, 43, 91, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(238, 43, 91, 0.6);
+            }
+        }
+
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        /* Emoji rain */
+        .emoji-particle {
+            position: absolute;
+            font-size: 2rem;
+            animation: particle-fall 3s ease-in forwards;
+        }
+
+        @keyframes particle-fall {
+            0% {
+                transform: translateY(-50px) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Speech bubble */
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 20px;
+            width: 20px;
+            height: 20px;
+            background: inherit;
+            clip-path: polygon(0 0, 100% 0, 0 100%);
+        }
+
+        /* Gradient animation */
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #ee2b5b, #b76e79, #E5C185);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-shift 3s ease infinite;
+        }
+    </style>
+</head>
+<body class="bg-background-light">
+    
+    <!-- Floating Hearts Container (Global) -->
+    <div class="fixed inset-0 pointer-events-none z-50" id="heartsContainer"></div>
+
+    <!-- Music Control -->
+    <div class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-white shadow-xl rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform border-2 border-primary/20" onclick="toggleMusic()">
+        <span class="material-icons text-primary" id="musicIcon">music_note</span>
+    </div>
+
+    <!-- Audio Element -->
+    <audio id="backgroundMusic" loop>
+        <source src="Olivia Dean - A Couple Minutes (Lyric Video).mp4" type="audio/mpeg">
+    </audio>
+
+    <!-- ============================================ -->
+    <!-- SCREEN 1: Intro -->
+    <!-- ============================================ -->
+    <div class="screen active" id="screen1">
+        <div class="absolute inset-0 bg-gradient-to-b from-[#FFF5F7] via-background-light to-[#FFE4E9]">
+            <!-- Soft Gradient Orbs -->
+            <div class="absolute -top-20 -left-20 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-20 -right-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="relative z-10 min-h-screen flex flex-col items-center justify-between p-8">
+            <!-- Header -->
+            <div class="mt-16 text-center">
+                <h1 class="font-serif text-5xl md:text-6xl text-background-dark/80 tracking-tight leading-tight">
+                    Dear Gwen... <span class="inline-block animate-pulse">💌</span>
+                </h1>
+                <p class="mt-4 text-primary/60 font-medium tracking-widest uppercase text-xs">A special message for you</p>
+            </div>
+
+            <!-- Central Envelope -->
+            <div class="relative w-full max-w-xs flex flex-col items-center">
+                <div class="relative group cursor-pointer transition-transform duration-500 hover:scale-105 active:scale-95">
+                    <!-- Shadow/Glow -->
+                    <div class="absolute inset-0 bg-primary/20 blur-2xl rounded-xl scale-75 group-hover:scale-100 transition-transform duration-700"></div>
+                    
+                    <!-- Envelope Visual -->
+                    <div class="relative bg-white p-1 rounded-xl shadow-2xl border border-primary/5">
+                        <div class="bg-background-light rounded-lg p-10 flex flex-col items-center justify-center border-2 border-dashed border-primary/20">
+                            <span class="material-icons text-7xl text-primary/80">mail</span>
+                            <div class="absolute -top-3 -right-3 bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transform rotate-12">
+                                <span class="material-icons text-xl">favorite</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <p class="mt-8 font-serif italic text-background-dark/50 text-center px-4">
+                    "Somewhere inside this little note, <br/>lies a question I've wanted to ask..."
+                </p>
+            </div>
+
+            <!-- Action Button -->
+            <div class="w-full max-w-sm mb-12">
+                <div class="bg-white/30 backdrop-blur-md p-4 rounded-full border border-white/50 shadow-xl">
+                    <button onclick="nextScreen(2)" class="w-full py-5 px-8 rounded-full bg-gradient-to-r from-accent-gold via-[#FFD700] to-accent-gold text-background-dark font-bold text-lg shadow-lg hover:shadow-2xl transition-all duration-300 transform active:scale-95 flex items-center justify-center gap-3">
+                        <span class="uppercase tracking-wider">Tap to see your surprise</span>
+                        <span class="text-xl">😏</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SCREEN 2: Who's Thinking About You -->
+    <!-- ============================================ -->
+    <div class="screen" id="screen2">
+        <div class="absolute inset-0 bg-background-light"></div>
+        
+        <!-- Header Nav -->
+        <header class="relative z-10 p-6 flex justify-between items-center">
+            <button onclick="prevScreen()" class="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm">
+                <span class="material-icons text-primary">arrow_back_ios_new</span>
+            </button>
+            <div class="flex gap-1">
+                <div class="w-2 h-2 rounded-full bg-primary/20"></div>
+                <div class="w-8 h-2 rounded-full bg-primary"></div>
+                <div class="w-2 h-2 rounded-full bg-primary/20"></div>
+                <div class="w-2 h-2 rounded-full bg-primary/20"></div>
+                <div class="w-2 h-2 rounded-full bg-primary/20"></div>
+            </div>
+            <div class="w-10 h-10"></div>
+        </header>
+
+        <main class="relative z-10 flex-grow flex flex-col px-8 pb-10">
+            <!-- Headline -->
+            <div class="mt-4 mb-10 text-center">
+                <h1 class="text-4xl font-extrabold tracking-tight leading-tight">
+                    Guess who's been <br/>
+                    <span class="text-primary">thinking about you</span> <br/>
+                    all day?
+                </h1>
+            </div>
+
+            <!-- Interactive Area -->
+            <div class="relative flex-grow flex flex-col items-center justify-center">
+                <!-- Speech Bubbles -->
+                <div class="absolute top-0 left-0 speech-bubble bg-white px-5 py-3 rounded-full shadow-lg border-2 border-primary/5 reveal-item">
+                    <p class="text-sm font-semibold text-primary">Your smile...</p>
+                </div>
+
+                <div class="absolute top-12 right-0 speech-bubble bg-white px-5 py-3 rounded-full shadow-lg border-2 border-primary/5 reveal-item" style="transition-delay: 0.2s;">
+                    <p class="text-sm font-semibold text-primary">How you laugh...</p>
+                </div>
+
+                <!-- Central Card -->
+                <div id="revealCard" class="relative group cursor-pointer w-64 h-80" onclick="revealThinking()">
+                    <!-- Hidden State -->
+                    <div id="cardBack" class="absolute inset-0 rounded-xl bg-primary shadow-2xl flex flex-col items-center justify-center text-white transition-all duration-500 hover:scale-105 active:scale-95">
+                        <div class="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center mb-6">
+                            <span class="material-icons text-4xl">touch_app</span>
+                        </div>
+                        <p class="text-lg font-bold tracking-wide">TAP TO REVEAL</p>
+                        <p class="text-xs font-medium opacity-80 mt-1 uppercase tracking-widest">A little secret</p>
+                    </div>
+
+                    <!-- Revealed State -->
+                    <div id="cardFront" class="absolute inset-0 rounded-xl bg-white shadow-xl flex flex-col items-center justify-center border-4 border-primary/10 opacity-0 pointer-events-none transition-all duration-500">
+                        <div class="text-7xl mb-4">🥰</div>
+                        <p class="text-primary font-bold text-2xl">It's me!</p>
+                        <p class="text-background-dark/60 text-sm mt-2">I hope that made you smile</p>
+                        <span class="material-icons text-primary mt-4">favorite</span>
+                    </div>
+                </div>
+
+                <div class="absolute bottom-4 left-4 speech-bubble bg-white px-5 py-3 rounded-full shadow-lg border-2 border-primary/5 reveal-item" style="transition-delay: 0.4s;">
+                    <p class="text-sm font-semibold text-primary">Your energy...</p>
+                </div>
+            </div>
+
+            <!-- Next Button -->
+            <div id="nextButton2" class="mt-12 opacity-0 pointer-events-none transition-all duration-500">
+                <button onclick="nextScreen(3)" class="w-full py-5 bg-primary hover:bg-primary/90 text-white rounded-full font-bold text-lg shadow-xl shadow-primary/20 transition-all active:scale-95 flex items-center justify-center gap-2">
+                    <span>Tell me more...</span>
+                    <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SCREEN 3: Things That Make Me Smile -->
+    <!-- ============================================ -->
+    <div class="screen" id="screen3">
+        <div class="absolute inset-0 bg-gradient-to-b from-background-light to-[#FFE4E9]"></div>
+
+        <header class="relative z-10 p-6 flex justify-between items-center">
+            <button onclick="prevScreen()" class="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm">
+                <span class="material-icons text-primary">arrow_back_ios_new</span>
+            </button>
+            <div class="flex gap-1">
+                <div class="w-2 h-2 rounded-full bg-primary/20"></div>
+                <div class="w-2 h-2 rounded-full bg-primary/20"></div>
+                <div class="w-8 h-2 rounded-full bg-primary"></div>
+                <div class="w-2 h-2 rounded-full bg-primary/20"></div>
+                <div class="w-2 h-2 rounded-full bg-primary/20"></div>
+            </div>
+            <div class="w-10 h-10"></div>
+        </header>
+
+        <main class="relative z-10 flex-grow flex flex-col px-8 pb-10">
+            <div class="mt-4 mb-8 text-center">
+                <h2 class="text-3xl font-bold tracking-tight leading-tight text-background-dark">
+                    A few things I can't stop <br/>
+                    <span class="text-primary">smiling about</span> <br/>
+                    because of you...
+                </h2>
+            </div>
+
+            <div class="flex-grow flex flex-col justify-center">
+                <button id="revealBtn3" onclick="revealSnippets()" class="mb-8 py-4 px-8 bg-primary text-white rounded-full font-semibold shadow-lg hover:shadow-xl transition-all active:scale-95">
+                    Show me ✨
+                </button>
+
+                <div id="snippetsContainer" class="space-y-4"></div>
+            </div>
+
+            <div id="nextButton3" class="mt-12 opacity-0 pointer-events-none transition-all duration-500">
+                <button onclick="nextScreen(4)" class="w-full py-5 bg-primary hover:bg-primary/90 text-white rounded-full font-bold text-lg shadow-xl shadow-primary/20 transition-all active:scale-95 flex items-center justify-center gap-2">
+                    <span>Continue</span>
+                    <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SCREEN 4: Memory -->
+    <!-- ============================================ -->
+    <div class="screen" id="screen4">
+        <div class="absolute inset-0 bg-gradient-to-b from-[#FFF5F7] to-background-light"></div>
+
+        <header class="relative z-10 p-6 flex justify-between items-center">
+            <button onclick="prevScreen()" class="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm">
+                <span class="material-icons text-primary">arrow_back_ios_new</span>
+            </button>
+            <div class="flex gap-1">
+                <div class="w-2 h-2 rounded-full bg-primary/20"></div>
+                <div class="w-2 h-2 rounded-full bg-primary/20"></div>
+                <div class="w-2 h-2 rounded-full bg-primary/20"></div>
+                <div class="w-8 h-2 rounded-full bg-primary"></div>
+                <div class="w-2 h-2 rounded-full bg-primary/20"></div>
+            </div>
+            <div class="w-10 h-10"></div>
+        </header>
+
+        <main class="relative z-10 flex-grow flex flex-col px-8 pb-10 justify-center">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold tracking-tight leading-tight text-background-dark">
+                    One of my <span class="text-primary">favorite memories</span> <br/>
+                    with you...
+                </h2>
+            </div>
+
+            <button id="revealBtn4" onclick="revealMemory()" class="mb-8 py-4 px-8 bg-primary text-white rounded-full font-semibold shadow-lg hover:shadow-xl transition-all active:scale-95 self-center">
+                Tell me 💫
+            </button>
+
+            <div id="memoryContainer" class="space-y-4"></div>
+
+            <div id="nextButton4" class="mt-12 opacity-0 pointer-events-none transition-all duration-500">
+                <button onclick="nextScreen(5)" class="w-full py-5 bg-primary hover:bg-primary/90 text-white rounded-full font-bold text-lg shadow-xl shadow-primary/20 transition-all active:scale-95 flex items-center justify-center gap-2">
+                    <span>What's next?</span>
+                    <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SCREEN 5: Playful Tease -->
+    <!-- ============================================ -->
+    <div class="screen" id="screen5">
+        <div class="fixed inset-0 bg-gradient-to-b from-[#420a16] to-background-dark z-0"></div>
+
+        <!-- Decorative sparkles -->
+        <div class="fixed inset-0 pointer-events-none z-10 overflow-hidden">
+            <div class="absolute top-10 left-10 w-2 h-2 bg-accent-gold rounded-full blur-[1px] opacity-40 animate-pulse"></div>
+            <div class="absolute top-24 left-16 w-1 h-1 bg-accent-gold rounded-full blur-[1px] opacity-60"></div>
+            <div class="absolute bottom-20 right-10 w-2 h-2 bg-accent-gold rounded-full blur-[1px] opacity-40 animate-pulse"></div>
+            <div class="absolute bottom-10 right-20 w-1 h-1 bg-accent-gold rounded-full blur-[1px] opacity-60"></div>
+            <div class="absolute -top-24 -left-24 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
+        </div>
+
+        <main class="relative z-20 h-screen w-full flex flex-col items-center justify-center px-8 text-center">
+            <div class="max-w-xs space-y-8">
+                <div class="flex flex-col items-center gap-4">
+                    <span class="material-icons text-primary/40 text-4xl">favorite</span>
+                    <h1 class="text-4xl font-medium tracking-tight leading-snug text-accent-gold">
+                        I have a question... <br/>
+                        <span class="text-white/90">but it's kind of serious</span> 
+                        <span class="inline-block animate-bounce">😏</span>
+                    </h1>
+                </div>
+                
+                <p class="text-white/40 text-sm tracking-wide leading-relaxed px-4">
+                    Take a deep breath. Only click when you're ready for what's next.
+                </p>
+            </div>
+
+            <div class="mt-20 relative">
+                <div class="absolute inset-0 bg-primary/30 rounded-full animate-ping scale-150 opacity-20"></div>
+                <div class="absolute inset-0 bg-primary/20 rounded-full animate-pulse scale-125 opacity-40"></div>
+                
+                <button onclick="createSparkles(); setTimeout(() => nextScreen(6), 1000)" class="relative bg-primary hover:bg-primary/90 text-white font-semibold py-5 px-10 rounded-full pulse-glow transition-all active:scale-95 group overflow-hidden">
+                    <div class="flex items-center gap-3">
+                        <span class="tracking-wide">Tap to see it</span>
+                        <span class="material-icons text-lg group-hover:translate-x-1 transition-transform">arrow_forward_ios</span>
+                    </div>
+                </button>
+            </div>
+
+            <div class="absolute bottom-12 w-full text-center">
+                <div class="flex justify-center gap-1 mb-2">
+                    <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-white/20"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-white/20"></div>
+                </div>
+                <p class="text-[10px] uppercase tracking-[0.2em] text-white/30 font-bold">Confidential • Just for Gwen</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SCREEN 6: Valentine Question -->
+    <!-- ============================================ -->
+    <div class="screen" id="screen6">
+        <div class="absolute inset-0 bg-white">
+            <!-- Decorative elements -->
+            <div class="absolute top-10 left-10 text-primary/20 scale-150 transform -rotate-12">
+                <span class="material-icons text-6xl">favorite</span>
+            </div>
+            <div class="absolute bottom-20 right-10 text-primary/10 scale-125 transform rotate-45">
+                <span class="material-icons text-7xl">favorite</span>
+            </div>
+            <div class="absolute top-1/2 left-[-20px] text-rose-gold/20 scale-110">
+                <span class="material-icons text-5xl">auto_awesome</span>
+            </div>
+            <div class="absolute inset-0 opacity-40" style="background: radial-gradient(circle at 20% 30%, rgba(238, 43, 91, 0.15) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(238, 43, 91, 0.1) 0%, transparent 40%);"></div>
+        </div>
+
+        <div class="relative z-10 h-screen flex flex-col items-center justify-between p-8 text-center">
+            <!-- Top Icon -->
+            <div class="mt-8">
+                <div class="w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center relative" style="box-shadow: 0 0 20px rgba(183,110,121,0.3);">
+                    <span class="material-icons text-7xl text-primary">favorite</span>
+                    <div class="absolute -top-2 -right-2 bg-rose-gold p-2 rounded-full text-white shadow-lg">
+                        <span class="material-icons text-sm">favorite</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- The Question -->
+            <div class="space-y-6 px-4">
+                <span class="text-rose-gold font-bold tracking-[0.2em] uppercase text-xs">A special request for</span>
+                <h1 class="font-handwritten text-5xl md:text-6xl gradient-text leading-tight px-2">
+                    Gwen... <br/>
+                    will you be my Valentine? 💖
+                </h1>
+                <p class="text-zinc-500 text-sm leading-relaxed px-6">
+                    I’ve been thinking about this for a while. And I didn’t want to rush it. I wanted it to feel right.
+                </p>
+            </div>
+
+            <!-- Buttons -->
+            <div class="w-full space-y-4 mb-10 max-w-sm">
+                <button onclick="celebrateYes()" class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-5 rounded-full shadow-xl transform active:scale-95 transition-all flex items-center justify-center gap-2 group">
+                    <span>Yes</span>
+                    <span class="material-icons text-xl group-hover:scale-125 transition-transform">favorite</span>
+                </button>
+                
+                <button onclick="celebrateYes()" class="w-full bg-rose-gold hover:bg-rose-gold/90 text-white font-bold py-5 rounded-full shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2 group">
+                    <span>Of course</span>
+                    <span class="material-icons text-xl group-hover:rotate-12 transition-transform">celebration</span>
+                </button>
+                
+                <button onclick="celebrateYes()" class="w-full bg-white border-2 border-rose-gold text-primary font-bold py-5 rounded-full shadow-md transform active:scale-95 transition-all flex items-center justify-center gap-2 group">
+                    <span>Definitely 😘</span>
+                    <span class="material-icons text-xl text-rose-gold group-hover:scale-110 transition-transform">auto_fix_high</span>
+                </button>
+            </div>
+
+            <!-- Footer -->
+            <div class="flex items-center gap-2 text-rose-gold/60">
+                <span class="material-icons text-xs">auto_awesome</span>
+                <span class="text-[10px] uppercase tracking-widest font-semibold">Special Moment with You</span>
+                <span class="material-icons text-xs">auto_awesome</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SCREEN 7: Final Tease -->
+    <!-- ============================================ -->
+    <div class="screen" id="screen7">
+        <div class="fixed inset-0 z-0 bg-background-light">
+            <div class="absolute inset-0" style="background: radial-gradient(circle at 20% 30%, rgba(238, 43, 91, 0.15) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(238, 43, 91, 0.1) 0%, transparent 40%), radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.8) 0%, transparent 100%);"></div>
+        </div>
+
+        <main class="relative z-10 min-h-screen flex flex-col items-center justify-center p-6 text-center">
+            <!-- Icon -->
+            <div class="mb-8 p-4 bg-primary/10 rounded-full">
+                <span class="material-icons text-primary text-4xl">favorite</span>
+            </div>
+
+            <!-- Content -->
+            <div class="glass-card rounded-xl p-8 mb-12 shadow-2xl max-w-sm">
+                <p class="text-primary/70 italic text-lg mb-4 font-light">
+                    Also...
+                </p>
+                <h1 class="text-background-dark font-semibold text-2xl leading-relaxed mb-6">
+                    I meant every word in here. I still care about you deeply.
+ 
+                </h1>
+                <p class="text-background-dark/80 text-lg">
+                    Relax. I’m not proposing today 
+                    <span class="inline-block bg-primary/10 px-2 py-1 rounded-lg text-primary font-bold">😂</span>
+                </p>
+            </div>
+
+            <!-- Actions -->
+            <!-- <div class="w-full max-w-sm space-y-4">
+                <button class="group w-full bg-primary hover:bg-primary/90 text-white font-semibold py-5 rounded-full shadow-lg shadow-primary/30 transition-all active:scale-95 flex items-center justify-center gap-3">
+                    <span class="material-icons">call</span>
+                    <span>Call Me Now</span>
+                </button>
+                
+                <div class="mt-12 text-background-dark/40 text-sm">
+                    <p class="italic">Can't wait to hear your voice ❤️</p>
+                </div>
+            </div> -->
+
+            <!-- Footer -->
+            <!-- <p class="mt-12 text-background-dark/40 text-xs uppercase tracking-widest font-bold">
+                Step 5 of 5 • Final Reveal
+            </p> -->
+        </main>
+
+        <!-- Decorative elements -->
+        <div class="fixed bottom-10 left-10 opacity-20 transform -rotate-12 pointer-events-none">
+            <span class="material-icons text-primary text-6xl">auto_awesome</span>
+        </div>
+        <div class="fixed top-20 right-5 opacity-20 transform rotate-45 pointer-events-none">
+            <span class="material-icons text-primary text-5xl">favorite_border</span>
+        </div>
+    </div>
+
+    <script>
+        let currentScreen = 1;
+        let musicPlaying = false;
+        const music = document.getElementById('backgroundMusic');
+
+        // Create floating hearts continuously
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'floating-heart';
+            heart.textContent = Math.random() > 0.5 ? '❤️' : '💕';
+            heart.style.left = Math.random() * 100 + '%';
+            heart.style.animationDelay = Math.random() * 5 + 's';
+            heart.style.fontSize = (Math.random() * 1.5 + 1.5) + 'rem';
+            document.getElementById('heartsContainer').appendChild(heart);
+            
+            setTimeout(() => heart.remove(), 8000);
+        }
+
+        setInterval(createHeart, 800);
+
+        // Toggle music
+        function toggleMusic() {
+            if (musicPlaying) {
+                music.pause();
+                document.getElementById('musicIcon').textContent = 'music_off';
+            } else {
+                music.play().catch(e => console.log('Audio play failed:', e));
+                document.getElementById('musicIcon').textContent = 'music_note';
+            }
+            musicPlaying = !musicPlaying;
+        }
+
+        // Auto-play attempt
+        setTimeout(() => {
+            music.play().then(() => {
+                musicPlaying = true;
+            }).catch(e => {
+                console.log('Auto-play blocked');
+            });
+        }, 500);
+
+        // Screen navigation
+        function nextScreen(screenNum) {
+            const current = document.getElementById('screen' + currentScreen);
+            const next = document.getElementById('screen' + screenNum);
+            
+            current.classList.remove('active');
+            setTimeout(() => {
+                next.classList.add('active');
+                currentScreen = screenNum;
+                
+                // Trigger animations on new screen
+                if (screenNum === 2) {
+                    setTimeout(() => {
+                        document.querySelectorAll('#screen2 .reveal-item').forEach(el => {
+                            el.classList.add('show');
+                        });
+                    }, 300);
+                }
+            }, 800);
+        }
+
+        function prevScreen() {
+            if (currentScreen > 1) {
+                nextScreen(currentScreen - 1);
+            }
+        }
+
+        // Screen 2: Reveal thinking
+        let thinkingRevealed = false;
+        function revealThinking() {
+            if (thinkingRevealed) return;
+            
+            const cardBack = document.getElementById('cardBack');
+            const cardFront = document.getElementById('cardFront');
+            
+            cardBack.style.opacity = '0';
+            cardBack.style.pointerEvents = 'none';
+            cardFront.style.opacity = '1';
+            cardFront.style.pointerEvents = 'all';
+            
+            setTimeout(() => {
+                const btn = document.getElementById('nextButton2');
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'all';
+            }, 1000);
+            
+            thinkingRevealed = true;
+        }
+
+        // Screen 3: Reveal snippets
+        let snippetsRevealed = false;
+        function revealSnippets() {
+            if (snippetsRevealed) return;
+            
+            const container = document.getElementById('snippetsContainer');
+            const btn = document.getElementById('revealBtn3');
+            btn.style.display = 'none';
+            
+            const snippets = [
+                "Your laugh that lights up every room you're in",
+                "The way you make me feel like I can be myself",
+                "Every conversation we have, no matter how small"
+            ];
+
+            snippets.forEach((text, index) => {
+                setTimeout(() => {
+                    const snippet = document.createElement('div');
+                    snippet.className = 'glass-card p-6 rounded-2xl border border-primary/10 reveal-item';
+                    snippet.innerHTML = `
+                        <div class="flex items-start gap-3">
+                            <span class="material-icons text-primary">favorite</span>
+                            <p class="text-background-dark/80 text-left">${text}</p>
+                        </div>
+                    `;
+                    container.appendChild(snippet);
+                    setTimeout(() => snippet.classList.add('show'), 100);
+                }, index * 600);
+            });
+
+            setTimeout(() => {
+                const btn = document.getElementById('nextButton3');
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'all';
+            }, 2500);
+
+            snippetsRevealed = true;
+        }
+
+        // Screen 4: Reveal memory
+        let memoryRevealed = false;
+        function revealMemory() {
+            if (memoryRevealed) return;
+            
+            const container = document.getElementById('memoryContainer');
+            const btn = document.getElementById('revealBtn4');
+            btn.style.display = 'none';
+            
+            setTimeout(() => {
+                const box = document.createElement('div');
+                box.className = 'glass-card p-8 rounded-2xl border-2 border-primary/20 reveal-item max-w-md mx-auto';
+                box.innerHTML = `
+                    <p class="text-lg italic mb-4 text-background-dark/70 font-serif">
+                        "The time you laughed at my music taste and then you made a playlist you made just for me... It was ass. It's the thought that counts😂"
+                    </p>
+                    <p class="text-base text-background-dark/60">
+                        I realized then how much I needed to correct your music taste 💕
+                    </p>
+                `;
+                container.appendChild(box);
+                setTimeout(() => box.classList.add('show'), 100);
+            }, 500);
+
+            setTimeout(() => {
+                const btn = document.getElementById('nextButton4');
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'all';
+            }, 1500);
+
+            memoryRevealed = true;
+        }
+
+        // Create sparkles effect
+        function createSparkles() {
+            const container = document.getElementById('heartsContainer');
+            for (let i = 0; i < 40; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.left = Math.random() * 100 + '%';
+                    sparkle.style.top = Math.random() * 100 + '%';
+                    sparkle.style.animationDelay = Math.random() * 1 + 's';
+                    container.appendChild(sparkle);
+                    setTimeout(() => sparkle.remove(), 2000);
+                }, i * 30);
+            }
+        }
+
+        // Celebrate yes with massive confetti
+        function celebrateYes() {
+            const container = document.getElementById('heartsContainer');
+            
+            // Confetti burst
+            for (let i = 0; i < 150; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = ['#ee2b5b', '#E5C185', '#b76e79', '#ffd700'][Math.floor(Math.random() * 4)];
+                    confetti.style.animationDelay = Math.random() * 0.3 + 's';
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    container.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 5000);
+                }, i * 15);
+            }
+
+            // Emoji rain
+            const emojis = ['💖', '💕', '❤️', '💗', '🥰', '😘', '✨', '💫', '⭐', '🎉'];
+            for (let i = 0; i < 40; i++) {
+                setTimeout(() => {
+                    const emoji = document.createElement('div');
+                    emoji.className = 'emoji-particle';
+                    emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    emoji.style.left = Math.random() * 100 + '%';
+                    emoji.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    emoji.style.animationDelay = Math.random() * 0.5 + 's';
+                    container.appendChild(emoji);
+                    setTimeout(() => emoji.remove(), 5000);
+                }, i * 80);
+            }
+
+            setTimeout(() => nextScreen(7), 3500);
+        }
+    </script>
+</body>
+</html>
